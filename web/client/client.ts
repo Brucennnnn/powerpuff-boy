@@ -1,5 +1,7 @@
 import { treaty } from "@elysiajs/eden";
-import { type App } from "@backend";
+import { type app } from "@backend";
 
 // Ignore the error, should work if you have a proper moonorepo setup which install package in root instead of relative node_modules
-export const api = treaty<App>("localhost:8080");
+const api = treaty<app>("localhost:8080");
+
+export default api;
