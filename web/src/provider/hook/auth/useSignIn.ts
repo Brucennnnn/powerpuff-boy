@@ -1,5 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { User } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import api from "web/client/client";
 
 export function useSign() {
