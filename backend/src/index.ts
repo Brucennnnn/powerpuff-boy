@@ -2,11 +2,13 @@ import { Elysia } from "elysia";
 import cors from "@elysiajs/cors";
 import authController from "backend/controller/auth";
 import swagger from "@elysiajs/swagger";
+import userController from "backend/controller/user";
 
 const app = new Elysia()
   .use(cors({ origin: "*" }))
   .use(swagger())
   .use(authController)
+  .use(userController)
   .get("/hi", async () => {
     return "Hello World";
   })
