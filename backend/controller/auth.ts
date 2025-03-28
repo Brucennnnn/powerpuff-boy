@@ -1,7 +1,8 @@
 import jwt from "@elysiajs/jwt";
-import Elysia from "elysia";
+import { Elysia, t } from "elysia";
 import "dotenv/config";
-const authController = new Elysia()
+import db from "backend/db/db";
+const authController = new Elysia({ prefix: "/auth" })
   .use(
     jwt({
       name: "jwt",
@@ -17,6 +18,22 @@ const authController = new Elysia()
     if (!profile) return error(401, "Unauthorized");
 
     return `Hello ${profile.name}`;
-  });
-
+  })
+  .post(
+    "/signin",
+    async ({ body: { username, password } }) => {
+      db.user.create({
+        data: {
+          username: username,
+          password: password,
+        },
+      });
+    },
+    {
+      body: t.Object({
+        username: t.String(),
+        password: t.String(),
+      }),
+    },
+  );
 export default authController;
