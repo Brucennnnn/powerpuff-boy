@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "web/client/client";
 
-export function useHi() {
+export function usePing() {
   return useQuery({
-    queryKey: ["hi"],
+    queryKey: ["ping"],
     queryFn: async () => {
-      const response = await api.hi.get();
+      const response = await api.ping.get();
       return response.data;
     },
   });

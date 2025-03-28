@@ -1,11 +1,12 @@
+
 import { useQuery } from "@tanstack/react-query";
 import api from "web/client/client";
 
-export function useSign() {
+export function useMe() {
   return useQuery({
-    queryKey: ["sign"],
+    queryKey: ["user", "me"],
     queryFn: async () => {
-      const response = await api.auth.sign({ name: "Fischl" }).get();
+      const response = await api.user.me.get();
       return response.data;
     },
   });

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import api from "web/client/client";
 
-export function useSign() {
+export function useRegister() {
   return useMutation({
     mutationFn: async ({
       username,
@@ -10,7 +10,8 @@ export function useSign() {
       username: string;
       password: string;
     }) => {
-      const response = await api.auth.signin.post({
+
+      const response = await api.auth.register.post({
         username: username,
         password: password,
       });

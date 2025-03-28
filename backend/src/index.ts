@@ -7,11 +7,11 @@ import userController from "backend/controller/user";
 const app = new Elysia()
   .use(cors({ origin: "*" }))
   .use(swagger())
+  .get("/ping", async () => {
+    return "pong";
+  })
   .use(authController)
   .use(userController)
-  .get("/hi", async () => {
-    return "Hello World";
-  })
   .listen(8080);
 
 export type app = typeof app;
