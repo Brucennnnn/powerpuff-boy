@@ -8,6 +8,8 @@
   "dependencies": {
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/jwt": "^1.2.0",
+    "@elysiajs/swagger": "^1.2.2",
+    "dotenv": "^16.4.7",
     "elysia": "latest"
   },
   "devDependencies": {
