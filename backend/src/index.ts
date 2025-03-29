@@ -4,6 +4,8 @@ import authController from "backend/controller/auth";
 import swagger from "@elysiajs/swagger";
 import userController from "backend/controller/user";
 import questionsController from "backend/controller/questions";
+import jobsController from "backend/controller/jobs";
+import logsController from "backend/controller/logs";
 
 const app = new Elysia()
   .use(cors({ origin: "*" }))
@@ -14,6 +16,8 @@ const app = new Elysia()
   .use(authController)
   .use(userController)
   .use(questionsController)
+  .use(jobsController)
+  .use(logsController)
   .listen(8080);
 
 export type app = typeof app;
