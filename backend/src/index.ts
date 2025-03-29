@@ -3,6 +3,11 @@ import cors from "@elysiajs/cors";
 import authController from "backend/controller/auth";
 import swagger from "@elysiajs/swagger";
 import userController from "backend/controller/user";
+import streakController from "backend/controller/streak";
+import tournamentsController from "backend/controller/tournaments";
+import tournamentResultsController from "backend/controller/tournament_results";
+import coursesController from "backend/controller/courses";
+import lessonsController from "backend/controller/lessons";
 
 const app = new Elysia()
   .use(cors({ origin: "*" }))
@@ -12,6 +17,11 @@ const app = new Elysia()
   })
   .use(authController)
   .use(userController)
+  .use(streakController)
+  .use(tournamentsController)
+  .use(tournamentResultsController)
+  .use(coursesController)
+  .use(lessonsController)
   .listen(8080);
 
 export type app = typeof app;

@@ -1,6 +1,7 @@
 import jwt from "@elysiajs/jwt";
 import { Elysia } from "elysia";
 import db from "backend/db/db";
+import { UserRole } from "@prisma/client";
 
 const authPlugin = (app: Elysia) =>
   app
@@ -42,7 +43,7 @@ const authPlugin = (app: Elysia) =>
         return {
           username,
           userId: user.id,
-          role: user.role
+          role: user.role as UserRole
         };
       } catch (e) {
         console.error("JWT Verification Error:", e);

@@ -1,55 +1,120 @@
 import jwt from "@elysiajs/jwt";
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
+import "dotenv/config";
 import db from "backend/db/db";
-import { UserRole } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
+import bcrypt from "bcrypt";
 
-const authPlugin = (app: Elysia) =>
-  app
-    .use(
-      jwt({
-        name: "jwt",
-        secret: process.env.JWT_SECRET_KEY ?? "",
-      }),
-    )
-    .derive(async ({ jwt, headers, set }) => {
-      const authHeader = headers.authorization;
+const SALT_ROUNDS = 10;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        set.status = 401; // Unauthorized
-        throw new Error("Invalid JWT");
-      }
-
-      const token = authHeader.substring(7);
-
+const authController = new Elysia({ prefix: "/auth" })
+  .use(
+    jwt({
+      name: "jwt",
+      secret: process.env.JWT_SECRET_KEY ?? "",
+    }),
+  )
+  .post(
+    "/register",
+    async ({ body: { username, password, firstname, lastname, role }, error }) => {
       try {
-        const payload = await jwt.verify(token);
-        if (!payload) {
-          set.status = 401;
-          throw new Error("Invalid JWT");
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+        // Convert role string to enum value or use default STUDENT
+        let userRole: UserRole = UserRole.STUDENT;
+        if (role) {
+          const upperRole = role.toUpperCase();
+          if (upperRole === 'INSTRUCTOR') {
+            userRole = UserRole.INSTRUCTOR;
+          } else if (upperRole === 'ADMIN') {
+            userRole = UserRole.ADMIN;
+          }
         }
 
-        const username = payload.username.toString();
+        const user = await db.users.create({
+          data: {
+            username,
+            password: hashedPassword,
+            firstname,
+            lastname,
+            role: userRole,
+            created_at: new Date(),
+          },
+        });
 
-        // Get user ID and role from database
+        return {
+          id: user.id,
+          username: user.username,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          role: user.role,
+          bio: user.bio || undefined,
+          skills: user.skills || undefined,
+          profile_picture: user.profile_picture || undefined,
+          created_at: user.created_at.toISOString(),
+        };
+      } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+          if (err.code === 'P2002') {
+            return error(400, {
+              message: "Username already exists"
+            });
+          }
+        }
+        return error(500, { message: "Internal Server Error" });
+      }
+    },
+    {
+      body: t.Object({
+        username: t.String(),
+        password: t.String(),
+        firstname: t.String(),
+        lastname: t.String(),
+        role: t.Optional(t.String()),
+      }),
+    },
+  ).post(
+    "/login",
+    async ({ jwt, body: { username, password }, error }) => {
+      try {
         const user = await db.users.findUnique({
-          where: { username }
+          where: {
+            username: username,
+          },
         });
 
         if (!user) {
-          set.status = 401;
-          throw new Error("User not found");
+          return error(404, {
+            message: "User not found or invalid credentials"
+          });
         }
 
-        return {
-          username,
-          userId: user.id,
-          role: user.role as UserRole
-        };
-      } catch (e) {
-        console.error("JWT Verification Error:", e);
-        set.status = 401;
-        throw new Error("Invalid JWT");
+        // Compare the provided password with the stored hash
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch) {
+          return error(404, {
+            message: "User not found or invalid credentials"
+          });
+        }
+
+        const token = await jwt.sign({
+          id: user.id,
+          username: user.username,
+          role: user.role
+        });
+
+        return { token };
+      } catch (err) {
+        return error(500, { message: "Internal Server Error" });
       }
+    },
+    {
+      body: t.Object({
+        username: t.String(),
+        password: t.String(),
+      }),
     });
 
-export { authPlugin };
+export default authController;
