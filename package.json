@@ -7,5 +7,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.5.3"
-  }
+  },
+  "scripts": {
+  "dev": "next dev"
+ }
 }
