@@ -71,7 +71,7 @@ const questionsController = new Elysia({ prefix: "/questions" })
         // Call another controller/service with the formatted data
         // Import and use the other controller here
 
-        // const result = await aiController.sendSomeAnswer(formattedAnswers); <-- Example of calling another controller
+        //const result = await aiController.sendSomeAnswer(formattedAnswers); <-- Example of calling another controller
 
         // Return the original formatted answers
         return formattedAnswers;
