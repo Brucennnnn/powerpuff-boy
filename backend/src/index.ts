@@ -12,6 +12,8 @@ import enrollmentsController from "backend/controller/enrollments";
 import instructorApplicationsController from "backend/controller/instructor_applications";
 import paymentsController from "backend/controller/payments";
 import reviewsController from "backend/controller/reviews";
+import challengesController from "backend/controller/challenges";
+import userChallengesController from "backend/controller/user_challenges";
 
 const app = new Elysia()
   .use(cors({ origin: "*" }))
@@ -30,6 +32,8 @@ const app = new Elysia()
   .use(instructorApplicationsController)
   .use(paymentsController)
   .use(reviewsController)
+  .use(challengesController)
+  .use(userChallengesController)
   .listen(8080);
 
 export type app = typeof app;
