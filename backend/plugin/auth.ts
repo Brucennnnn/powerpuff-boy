@@ -1,5 +1,6 @@
 import jwt from "@elysiajs/jwt";
 import { Elysia } from "elysia";
+import db from "backend/db/db";
 
 const authPlugin = (app: Elysia) =>
   app
@@ -25,8 +26,24 @@ const authPlugin = (app: Elysia) =>
           set.status = 401;
           throw new Error("Invalid JWT");
         }
-        return { username: payload.username.toString() };
 
+        const username = payload.username.toString();
+
+        // Get user ID and role from database
+        const user = await db.users.findUnique({
+          where: { username }
+        });
+
+        if (!user) {
+          set.status = 401;
+          throw new Error("User not found");
+        }
+
+        return {
+          username,
+          userId: user.id,
+          role: user.role
+        };
       } catch (e) {
         console.error("JWT Verification Error:", e);
         set.status = 401;
