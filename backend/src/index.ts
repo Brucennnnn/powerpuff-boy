@@ -3,6 +3,7 @@ import cors from "@elysiajs/cors";
 import authController from "backend/controller/auth";
 import swagger from "@elysiajs/swagger";
 import userController from "backend/controller/user";
+import { careerRouter } from "./routes/career";
 
 const app = new Elysia()
   .use(cors({ origin: "*" }))
@@ -12,6 +13,7 @@ const app = new Elysia()
   })
   .use(authController)
   .use(userController)
+  .use(careerRouter)
   .listen(8080);
 
 export type app = typeof app;
