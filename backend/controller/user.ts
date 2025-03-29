@@ -25,7 +25,8 @@ const userController = new Elysia({ prefix: "/user" })
       200: t.Object({
         id: t.Number(),
         username: t.String(),
-        password: t.String(),
+        firstname: t.String(),
+        lastname: t.String(),
       }),
       404: t.Object({
         message: t.String(),
