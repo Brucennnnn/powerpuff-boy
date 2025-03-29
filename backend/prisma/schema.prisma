@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,157 +10,276 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id             Int      @id @default(autoincrement())
-  username       String   @unique
-  password       String
-  firstname      String
-  lastname       String
-  role           String // student, instructor, admin
-  bio            String?
-  skills         String? // JSON or text
-  profilePicture String? // URL
-  createdAt      DateTime @default(now())
-
-  streak streak?
-  rank   rank?
-
-  tournamentResults      tournamentresult[]
-  courses                course[]                @relation("InstructorCourses")
-  enrollments            enrollment[]
-  instructorApplications instructorapplication[]
-  reviews                review[]
-  payments               payment[]
-  sentMessages           message[]               @relation("SentMessages")
-  receivedMessages       message[]               @relation("ReceivedMessages")
-  forums                 forum[]
-}
-
-model rank {
-  id     Int    @id @default(autoincrement())
-  user   user   @relation(fields: [userId], references: [id])
-  userId Int    @unique
-  level  String // bronze, silver, gold, etc.
+model users {
+  id                    Int                     @id @default(autoincrement())
+  username              String                  @unique
+  password              String
+  firstname             String
+  lastname              String
+  role                  String // student, instructor, admin
+  bio                   String?
+  skills                String? // ทักษะที่มี (JSON หรือ text)
+  profile_picture       String? // URL รูปโปรไฟล์
+  created_at            DateTime                @default(now())
+  
+  // Relations
+  streak                streak?
+  tournament_results    tournament_results[]
+  courses               courses[]
+  enrollments           enrollments[]
+  instructor_applications instructor_applications[]
+  reviews               reviews[]
+  payments              payments[]
+  user_challenges       user_challenges[]
+  user_achievements     user_achievements[]
+  user_level            user_level?
+  user_rank             user_rank[]
 }
 
 model streak {
-  id        Int      @id @default(autoincrement())
-  user      user     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
-  count     Int
-  startAt   DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               Int       @id @default(autoincrement())
+  user_id          Int       @unique
+  count            Int       @default(0) // จำนวนวันที่เล่นต่อเนื่อง
+  streak_start_at  DateTime
+  streak_reset_at  DateTime?
+  updated_at       DateTime  @updatedAt
+  
+  // Relations
+  user             users     @relation(fields: [user_id], references: [id])
 }
 
-model tournament {
-  id        Int                @id @default(autoincrement())
-  name      String
-  game      String
-  date      DateTime
-  organizer String
-  prizePool Decimal
-  results   tournamentresult[]
+model tournaments {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  game               String
+  date               DateTime
+  organizer          String
+  prize_pool         Decimal
+  
+  // Relations
+  tournament_results tournament_results[]
 }
 
-model tournamentresult {
-  id           Int        @id @default(autoincrement())
-  user         user       @relation(fields: [userId], references: [id])
-  userId       Int
-  tournament   tournament @relation(fields: [tournamentId], references: [id])
-  tournamentId Int
-  placement    Int
-  teamName     String?
-  prizeEarned  Decimal
+model tournament_results {
+  id            Int         @id @default(autoincrement())
+  user_id       Int
+  tournament_id Int
+  placement     Int
+  team_name     String?
+  prize_earned  Decimal
+  
+  // Relations
+  user          users       @relation(fields: [user_id], references: [id])
+  tournament    tournaments @relation(fields: [tournament_id], references: [id])
 }
 
-model course {
-  id           Int      @id @default(autoincrement())
-  title        String
-  description  String
-  instructor   user     @relation("InstructorCourses", fields: [instructorId], references: [id])
-  instructorId Int
-  category     String
-  price        Decimal
-  createdAt    DateTime @default(now())
-
-  lessons     lesson[]
-  enrollments enrollment[]
-  reviews     review[]
-  payments    payment[]
-  forums      forum[]
+model courses {
+  id              Int           @id @default(autoincrement())
+  title           String
+  description     String
+  instructor_id   Int
+  category        String // เช่น FPS, MOBA, Strategy
+  price           Decimal
+  created_at      DateTime      @default(now())
+  
+  // Relations
+  instructor      users         @relation(fields: [instructor_id], references: [id])
+  lessons         lessons[]
+  enrollments     enrollments[]
+  reviews         reviews[]
+  payments        payments[]
 }
 
-model lesson {
-  id          Int      @id @default(autoincrement())
-  course      course   @relation(fields: [courseId], references: [id])
-  courseId    Int
-  title       String
-  content     String
-  orderNumber Int
-  createdAt   DateTime @default(now())
-}
-
-model enrollment {
-  id         Int      @id @default(autoincrement())
-  user       user     @relation(fields: [userId], references: [id])
-  userId     Int
-  course     course   @relation(fields: [courseId], references: [id])
-  courseId   Int
-  enrolledAt DateTime @default(now())
-  progress   Int
-  completed  Boolean
-}
-
-model instructorapplication {
-  id              Int      @id @default(autoincrement())
-  user            user     @relation(fields: [userId], references: [id])
-  userId          Int
-  applicationText String
-  experience      String
-  status          String // pending, approved, rejected
-  appliedAt       DateTime @default(now())
-}
-
-model review {
-  id        Int      @id @default(autoincrement())
-  user      user     @relation(fields: [userId], references: [id])
-  userId    Int
-  course    course   @relation(fields: [courseId], references: [id])
-  courseId  Int
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-}
-
-model payment {
+model lessons {
   id            Int      @id @default(autoincrement())
-  user          user     @relation(fields: [userId], references: [id])
-  userId        Int
-  course        course   @relation(fields: [courseId], references: [id])
-  courseId      Int
-  amount        Decimal
-  paymentMethod String
-  paymentStatus String
-  paidAt        DateTime @default(now())
+  course_id     Int
+  title         String
+  content       String
+  order_number  Int
+  created_at    DateTime @default(now())
+  
+  // Relations
+  course        courses  @relation(fields: [course_id], references: [id])
 }
 
-model message {
+model enrollments {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  course_id   Int
+  enrolled_at DateTime @default(now())
+  progress    Int // 0-100%
+  completed   Boolean
+  
+  // Relations
+  user        users    @relation(fields: [user_id], references: [id])
+  course      courses  @relation(fields: [course_id], references: [id])
+  
+  @@unique([user_id, course_id])
+}
+
+model instructor_applications {
+  id               Int      @id @default(autoincrement())
+  user_id          Int
+  application_text String
+  experience       String
+  status           String // pending, approved, rejected
+  applied_at       DateTime @default(now())
+  
+  // Relations
+  user             users    @relation(fields: [user_id], references: [id])
+}
+
+model reviews {
   id         Int      @id @default(autoincrement())
-  sender     user     @relation("SentMessages", fields: [senderId], references: [id])
-  senderId   Int
-  receiver   user     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  receiverId Int
-  message    String
-  sentAt     DateTime @default(now())
+  user_id    Int
+  course_id  Int
+  rating     Int // 1-5 ดาว
+  comment    String?
+  created_at DateTime @default(now())
+  
+  // Relations
+  user       users    @relation(fields: [user_id], references: [id])
+  course     courses  @relation(fields: [course_id], references: [id])
+  
+  @@unique([user_id, course_id])
 }
 
-model forum {
-  id        Int      @id @default(autoincrement())
-  course    course   @relation(fields: [courseId], references: [id])
-  courseId  Int
-  user      user     @relation(fields: [userId], references: [id])
-  userId    Int
-  title     String
-  content   String
-  createdAt DateTime @default(now())
+model payments {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  course_id      Int
+  amount         Decimal
+  payment_method String
+  payment_status String // pending, completed, failed
+  paid_at        DateTime
+  
+  // Relations
+  user           users    @relation(fields: [user_id], references: [id])
+  course         courses  @relation(fields: [course_id], references: [id])
+}
+
+model challenges {
+  id                   Int               @id @default(autoincrement())
+  title                String
+  description          String
+  challenge_type       String // 'daily', 'global'
+  points               Int
+  xp                   Int
+  start_date           DateTime
+  end_date             DateTime?
+  completion_criteria  String // JSON string with criteria
+  difficulty           String // 'easy', 'medium', 'hard'
+  is_active            Boolean           @default(true)
+  created_at           DateTime          @default(now())
+  
+  // Relations
+  user_challenges      user_challenges[]
+}
+
+model user_challenges {
+  id             Int         @id @default(autoincrement())
+  user_id        Int
+  challenge_id   Int
+  progress       Int         @default(0) // 0-100%
+  completed      Boolean     @default(false)
+  completed_at   DateTime?
+  points_earned  Int?
+  xp_earned      Int?
+  created_at     DateTime    @default(now())
+  
+  // Relations
+  user           users       @relation(fields: [user_id], references: [id])
+  challenge      challenges  @relation(fields: [challenge_id], references: [id])
+  
+  @@unique([user_id, challenge_id])
+}
+
+model achievements {
+  id                Int                 @id @default(autoincrement())
+  name              String
+  description       String
+  icon_url          String
+  points            Int
+  xp                Int
+  criteria          String // JSON string with criteria
+  created_at        DateTime            @default(now())
+  
+  // Relations
+  user_achievements user_achievements[]
+}
+
+model user_achievements {
+  id             Int          @id @default(autoincrement())
+  user_id        Int
+  achievement_id Int
+  unlocked_at    DateTime
+  
+  // Relations
+  user           users        @relation(fields: [user_id], references: [id])
+  achievement    achievements @relation(fields: [achievement_id], references: [id])
+  
+  @@unique([user_id, achievement_id])
+}
+
+model levels {
+  id           Int          @id @default(autoincrement())
+  level_number Int          @unique
+  name         String
+  min_xp       Int          @unique
+  max_xp       Int          @unique
+  rewards      String? // JSON string with rewards
+  
+  // Relations
+  user_level   user_level[]
+}
+
+model user_level {
+  id         Int      @id @default(autoincrement())
+  user_id    Int      @unique
+  level_id   Int
+  current_xp Int      @default(0)
+  updated_at DateTime @updatedAt
+  
+  // Relations
+  user       users    @relation(fields: [user_id], references: [id])
+  level      levels   @relation(fields: [level_id], references: [id])
+}
+
+model ranks {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  min_points Int          @unique
+  season_id  Int
+  
+  // Relations
+  season     rank_seasons @relation(fields: [season_id], references: [id])
+  user_rank  user_rank[]
+}
+
+model rank_seasons {
+  id         Int       @id @default(autoincrement())
+  name       String
+  start_date DateTime
+  end_date   DateTime
+  is_active  Boolean   @default(false)
+  
+  // Relations
+  ranks      ranks[]
+  user_rank  user_rank[]
+}
+
+model user_rank {
+  id         Int          @id @default(autoincrement())
+  user_id    Int
+  rank_id    Int
+  season_id  Int
+  points     Int          @default(0)
+  updated_at DateTime     @updatedAt
+  
+  // Relations
+  user       users        @relation(fields: [user_id], references: [id])
+  rank       ranks        @relation(fields: [rank_id], references: [id])
+  season     rank_seasons @relation(fields: [season_id], references: [id])
+  
+  @@unique([user_id, season_id])
 }

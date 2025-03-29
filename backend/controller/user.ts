@@ -6,7 +6,7 @@ const userController = new Elysia({ prefix: "/user" })
   .use(authPlugin)
   .get("/me", async ({ username, error }) => {
     try {
-      const user = await db.user.findUnique({
+      const user = await db.users.findUnique({
         where: {
           username: username,
         },

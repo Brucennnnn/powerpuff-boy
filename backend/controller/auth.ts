@@ -21,7 +21,7 @@ const authController = new Elysia({ prefix: "/auth" })
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-        const user = await db.user.create({
+        const user = await db.users.create({
           data: {
             username,
             password: hashedPassword,
@@ -35,8 +35,8 @@ const authController = new Elysia({ prefix: "/auth" })
           ...user,
           bio: user.bio ?? undefined,
           skills: user.skills ?? undefined,
-          profilePicture: user.profilePicture ?? undefined,
-          createdAt: user.createdAt.toISOString(),
+          profilePicture: user.profile_picture ?? undefined,
+          createdAt: user.created_at.toISOString(),
         };
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -81,7 +81,7 @@ const authController = new Elysia({ prefix: "/auth" })
     "/login",
     async ({ jwt, body: { username, password }, error }) => {
       try {
-        const user = await db.user.findUnique({
+        const user = await db.users.findUnique({
           where: {
             username: username,
           },
