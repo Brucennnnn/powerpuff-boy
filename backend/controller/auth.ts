@@ -28,15 +28,20 @@ const authController = new Elysia({ prefix: "/auth" })
             firstname,
             lastname,
             role: role || "student",
+            created_at: new Date(),
           },
         });
 
         return {
-          ...user,
-          bio: user.bio ?? undefined,
-          skills: user.skills ?? undefined,
-          profilePicture: user.profile_picture ?? undefined,
-          createdAt: user.created_at.toISOString(),
+          id: user.id,
+          username: user.username,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          role: user.role,
+          bio: user.bio || undefined,
+          skills: user.skills || undefined,
+          profile_picture: user.profile_picture || undefined,
+          created_at: user.created_at.toISOString(),
         };
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -64,10 +69,7 @@ const authController = new Elysia({ prefix: "/auth" })
           firstname: t.String(),
           lastname: t.String(),
           role: t.String(),
-          bio: t.Optional(t.String()),
-          skills: t.Optional(t.String()),
-          profilePicture: t.Optional(t.String()),
-          createdAt: t.String(),
+          created_at: t.String(),
         }),
         400: t.Object({
           message: t.String(),

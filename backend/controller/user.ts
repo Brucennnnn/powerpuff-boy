@@ -16,7 +16,12 @@ const userController = new Elysia({ prefix: "/user" })
           message: "User not found"
         })
       }
-      return user
+      return {
+        ...user,
+        bio: user.bio ?? undefined, // Map null to undefined for bio
+        skills: user.skills ?? undefined, // Map null to undefined for skills
+        profile_picture: user.profile_picture ?? undefined, // Map null to undefined for profile_picture  
+      }
     } catch (err) {
       return error(500, { message: "Internal Server Error" })
     }
@@ -27,6 +32,10 @@ const userController = new Elysia({ prefix: "/user" })
         username: t.String(),
         firstname: t.String(),
         lastname: t.String(),
+        role: t.String(),
+        bio: t.Optional(t.String()),
+        skill: t.Optional(t.String()),
+        profile_picture: t.Optional(t.String())
       }),
       404: t.Object({
         message: t.String(),
