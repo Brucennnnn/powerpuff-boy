@@ -5,17 +5,16 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-w-dvw min-h-dvh bg-coralred flex justify-center items-center">
-      <div className="flex flex-col max-w-fit justify-center items-center gap-2">
+      <div className="flex flex-col max-w-fit justify-center items-center gap-4">
         <Image src={"/landing/main.png"} alt="main" width={800} height={800} />
-
-        <Typography variant="h1" fontWeight="bold" className="text">
+        <Typography variant="h1" fontWeight="bold" className="text-white">
           อยากอัพสกิลตัวเองใช่ไหม?
         </Typography>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h4" fontWeight="bold" className="text-white">
           อยากอัพสกิลตัวเองใช่ไหม?
         </Typography>
-        <Link href={"/login"} className="bg-white p-2 rounded-full">
-          คลิกเพื่อเริ่มเรียนเลย!
+        <Link href={"/quiz"} className="bg-white p-2 rounded-full">
+          คลิกเพื่อเริ่มทดสอบกันเลย!
         </Link>
       </div>
     </div>
