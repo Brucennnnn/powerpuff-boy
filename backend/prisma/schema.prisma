@@ -14,7 +14,25 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  username  String  @unique
-  password  String
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
+
+enum QuestionStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model questions {
+  id        Int            @id @default(autoincrement())
+  question  String
+  status    QuestionStatus @default(ACTIVE)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+
+  // Add indexes for common queries
+  @@index([status])
+  @@index([createdAt])
 }
