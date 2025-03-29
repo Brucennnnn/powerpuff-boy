@@ -9,9 +9,7 @@ const SwipeCard = dynamic(() => import("./components/SwipeCard"), {
 });
 
 export default function Page() {
-  const [answer, setAnswer] = useState<boolean[]>(
-    Array(cardData.length).fill(false),
-  );
+  const [answer, setAnswer] = useState<Record<number, boolean>>({});
   const [cards, setCards] = useState<Card[]>(cardData);
 
   const onYes = (id: number) => {
@@ -19,7 +17,10 @@ export default function Page() {
     setAnswer(answer);
   };
 
-  const onNo = (id: number) => {};
+  const onNo = (id: number) => {
+    answer[id] = false;
+    setAnswer(answer);
+  };
   console.log(answer);
 
   return (
@@ -28,7 +29,6 @@ export default function Page() {
         return (
           <SwipeCard
             key={card.id}
-            cards={cards}
             setCards={setCards}
             onYes={onYes}
             onNo={onNo}
