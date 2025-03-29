@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, QuestionStatus } from "@prisma/client";
 import db from "backend/db/db";
 import { Elysia, t } from "elysia";
 
@@ -6,7 +6,9 @@ const questionsController = new Elysia({ prefix: "/questions" })
   .get("/all", async ({ error }) => {
     try {
       const questions = await db.questions.findMany({
-
+        where: {
+          status: QuestionStatus.ACTIVE
+        }
       });
       return questions;
     } catch (err) {
