@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model user {
   id             Int      @id @default(autoincrement())
   username       String   @unique
   password       String
@@ -19,77 +19,77 @@ model User {
   profilePicture String? // URL
   createdAt      DateTime @default(now())
 
-  Streak Streak?
-  Rank   Rank?
+  streak streak?
+  rank   rank?
 
-  TournamentResults      TournamentResult[]
-  Courses                Course[]                @relation("InstructorCourses") // Fix here
-  Enrollments            Enrollment[]
-  InstructorApplications InstructorApplication[]
-  Reviews                Review[]
-  Payments               Payment[]
-  SentMessages           Message[]               @relation("SentMessages")
-  ReceivedMessages       Message[]               @relation("ReceivedMessages")
-  Forums                 Forum[]
+  tournamentResults      tournamentresult[]
+  courses                course[]                @relation("InstructorCourses")
+  enrollments            enrollment[]
+  instructorApplications instructorapplication[]
+  reviews                review[]
+  payments               payment[]
+  sentMessages           message[]               @relation("SentMessages")
+  receivedMessages       message[]               @relation("ReceivedMessages")
+  forums                 forum[]
 }
 
-model Rank {
+model rank {
   id     Int    @id @default(autoincrement())
-  user   User   @relation(fields: [userId], references: [id])
+  user   user   @relation(fields: [userId], references: [id])
   userId Int    @unique
   level  String // bronze, silver, gold, etc.
 }
 
-model Streak {
+model streak {
   id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
   userId    Int      @unique
   count     Int
   startAt   DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Tournament {
+model tournament {
   id        Int                @id @default(autoincrement())
   name      String
   game      String
   date      DateTime
   organizer String
   prizePool Decimal
-  results   TournamentResult[]
+  results   tournamentresult[]
 }
 
-model TournamentResult {
+model tournamentresult {
   id           Int        @id @default(autoincrement())
-  user         User       @relation(fields: [userId], references: [id])
+  user         user       @relation(fields: [userId], references: [id])
   userId       Int
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournament   tournament @relation(fields: [tournamentId], references: [id])
   tournamentId Int
   placement    Int
   teamName     String?
   prizeEarned  Decimal
 }
 
-model Course {
+model course {
   id           Int      @id @default(autoincrement())
   title        String
   description  String
-  instructor   User     @relation("InstructorCourses", fields: [instructorId], references: [id])
+  instructor   user     @relation("InstructorCourses", fields: [instructorId], references: [id])
   instructorId Int
   category     String
   price        Decimal
   createdAt    DateTime @default(now())
 
-  Lessons     Lesson[]
-  Enrollments Enrollment[]
-  Reviews     Review[]
-  Payments    Payment[]
-  Forums      Forum[]
+  lessons     lesson[]
+  enrollments enrollment[]
+  reviews     review[]
+  payments    payment[]
+  forums      forum[]
 }
 
-model Lesson {
+model lesson {
   id          Int      @id @default(autoincrement())
-  course      Course   @relation(fields: [courseId], references: [id])
+  course      course   @relation(fields: [courseId], references: [id])
   courseId    Int
   title       String
   content     String
@@ -97,20 +97,20 @@ model Lesson {
   createdAt   DateTime @default(now())
 }
 
-model Enrollment {
+model enrollment {
   id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id])
+  user       user     @relation(fields: [userId], references: [id])
   userId     Int
-  course     Course   @relation(fields: [courseId], references: [id])
+  course     course   @relation(fields: [courseId], references: [id])
   courseId   Int
   enrolledAt DateTime @default(now())
   progress   Int
   completed  Boolean
 }
 
-model InstructorApplication {
+model instructorapplication {
   id              Int      @id @default(autoincrement())
-  user            User     @relation(fields: [userId], references: [id])
+  user            user     @relation(fields: [userId], references: [id])
   userId          Int
   applicationText String
   experience      String
@@ -118,22 +118,22 @@ model InstructorApplication {
   appliedAt       DateTime @default(now())
 }
 
-model Review {
+model review {
   id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
   userId    Int
-  course    Course   @relation(fields: [courseId], references: [id])
+  course    course   @relation(fields: [courseId], references: [id])
   courseId  Int
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
 }
 
-model Payment {
+model payment {
   id            Int      @id @default(autoincrement())
-  user          User     @relation(fields: [userId], references: [id])
+  user          user     @relation(fields: [userId], references: [id])
   userId        Int
-  course        Course   @relation(fields: [courseId], references: [id])
+  course        course   @relation(fields: [courseId], references: [id])
   courseId      Int
   amount        Decimal
   paymentMethod String
@@ -141,21 +141,21 @@ model Payment {
   paidAt        DateTime @default(now())
 }
 
-model Message {
+model message {
   id         Int      @id @default(autoincrement())
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  sender     user     @relation("SentMessages", fields: [senderId], references: [id])
   senderId   Int
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiver   user     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   receiverId Int
   message    String
   sentAt     DateTime @default(now())
 }
 
-model Forum {
+model forum {
   id        Int      @id @default(autoincrement())
-  course    Course   @relation(fields: [courseId], references: [id])
+  course    course   @relation(fields: [courseId], references: [id])
   courseId  Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
   userId    Int
   title     String
   content   String
