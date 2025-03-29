@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { K2D } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "../provider/QueryProvider";
+import { Toaster } from "@web/components/ui/sonner";
 
 const k2D = K2D({
   variable: "--font-k2d",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${k2D.variable} antialiased font-k2d`}>
         <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   );

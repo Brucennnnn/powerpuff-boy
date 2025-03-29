@@ -14,7 +14,42 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  username  String  @unique
-  password  String
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
+
+enum QuestionStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model questions {
+  id        Int            @id @default(autoincrement())
+  question  String
+  status    QuestionStatus @default(ACTIVE)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+
+  // Add indexes for common queries
+  @@index([status])
+  @@index([createdAt])
+}
+
+model jobs {
+  id            Int     @id @default(autoincrement())
+  job_title_th  String
+  job_title_en  String
+  short_desc    String
+  job_avatar    String
+  academy_link  String
+  logs          logs[]
+}
+
+model logs {
+  id         Int      @id @default(autoincrement())
+  job_id     Int
+  job        jobs     @relation(fields: [job_id], references: [id])
+  created_at DateTime @default(now())
 }
