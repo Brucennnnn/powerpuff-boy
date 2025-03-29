@@ -3,6 +3,9 @@ import { Elysia, t } from "elysia";
 import "dotenv/config";
 import db from "backend/db/db";
 import { Prisma } from "@prisma/client";
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10;
 
 const authController = new Elysia({ prefix: "/auth" })
   .use(
@@ -15,15 +18,19 @@ const authController = new Elysia({ prefix: "/auth" })
     "/register",
     async ({ body: { username, password, firstname, lastname, role }, error }) => {
       try {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
         const user = await db.user.create({
           data: {
             username,
-            password,
-            firstname, 
+            password: hashedPassword,
+            firstname,
             lastname,
             role: role || "student",
           },
         });
+
         return {
           ...user,
           bio: user.bio ?? undefined,
@@ -54,7 +61,6 @@ const authController = new Elysia({ prefix: "/auth" })
         200: t.Object({
           id: t.Number(),
           username: t.String(),
-          password: t.String(),
           firstname: t.String(),
           lastname: t.String(),
           role: t.String(),
@@ -80,16 +86,28 @@ const authController = new Elysia({ prefix: "/auth" })
             username: username,
           },
         });
-        if (!user || user.password !== password) {
+
+        if (!user) {
           return error(404, {
             message: "User not found or invalid credentials"
           });
         }
-        const token = await jwt.sign({ 
+
+        // Compare the provided password with the stored hash
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch) {
+          return error(404, {
+            message: "User not found or invalid credentials"
+          });
+        }
+
+        const token = await jwt.sign({
           id: user.id,
           username: user.username,
           role: user.role
         });
+
         return { token };
       } catch (err) {
         return error(500, { message: "Internal Server Error" });

@@ -10,10 +10,12 @@
     "@elysiajs/jwt": "^1.2.0",
     "@elysiajs/swagger": "^1.2.2",
     "@prisma/client": "6.5.0",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "elysia": "latest"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "bun-types": "latest",
     "prisma": "^6.5.0"
   },
