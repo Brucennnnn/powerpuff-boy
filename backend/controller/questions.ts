@@ -1,5 +1,7 @@
 import { Prisma, QuestionStatus } from "@prisma/client";
 import db from "backend/db/db";
+import { CareerService } from "backend/services/careerService";
+import { JobService } from "backend/services/jobService";
 import { Elysia, t } from "elysia";
 
 const questionsController = new Elysia({ prefix: "/questions" })
@@ -68,13 +70,16 @@ const questionsController = new Elysia({ prefix: "/questions" })
           answer: item.answer
         }));
 
+        const possibleAnswers = await JobService.getAllJobs();
+
+        const recommendation = await CareerService.getCareerRecommendation(formattedAnswers, possibleAnswers);
         // Call another controller/service with the formatted data
         // Import and use the other controller here
 
         //const result = await aiController.sendSomeAnswer(formattedAnswers); <-- Example of calling another controller
 
         // Return the original formatted answers
-        return formattedAnswers;
+        return recommendation;
       } catch (err) {
         console.error(err);
         return error(500, { message: "Internal Server Error" });
