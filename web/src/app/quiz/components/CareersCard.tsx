@@ -1,35 +1,31 @@
 import Typography from "@web/components/ui/typography";
 import Image from "next/image";
-export function CareersCard({ job }: { job: string }) {
-  const jobInfo = jobs[job];
 
+export type Career = {
+  id: number;
+  job_title_th: string;
+  job_title_en: string;
+  short_desc: string;
+  job_avatar: string;
+  academy_link: string;
+};
+
+export function CareersCard(props: Career) {
   return (
     <div className="flex flex-col p-4 justify-center items-center w-96 h-fit bg-white rounded-lg">
       <Image
-        alt={job}
-        src={`https://www.garenaacademy.com/_nuxt/img/game_artist.bec71db.png`}
+        alt={props.job_title_en}
+        src={props.job_avatar}
         width={200}
         height={200}
       />
       <Typography variant="h3" fontWeight="bold">
-        {jobInfo.title}
+        {props.job_title_en}
       </Typography>
-      <Typography variant="h5">{jobInfo.description}</Typography>
+      <Typography variant="h3" fontWeight="bold">
+        {props.job_title_th}
+      </Typography>
+      <Typography variant="h5">{props.short_desc}</Typography>
     </div>
   );
 }
-
-type JobInfo = {
-  title: string;
-  description: string;
-  image: string;
-};
-
-const jobs: Record<string, JobInfo> = {
-  Artist: {
-    title: "ศิลปิน",
-    description:
-      "อาชีพของผู้ที่ทำหน้าที่ออกแบบและวาดภาพองค์ประกอบต่างๆ ในเกมให้เห็นเป็นภาพที่สวยงามสมจริงหรือตามจินตนาการ อาทิ ฉากหลัง วิวทิวทัศน์ วัตถุต่างๆ ไม่ว่าจะเป็นยานพาหนะ อาวุธ บ้านเรือน สัตว์ รวมทั้งตัวละครและเครื่องแต่งกาย ให้ปรากฏเป็นภาพตามเรื่องราวในเกม",
-    image: "artist.png",
-  },
-};

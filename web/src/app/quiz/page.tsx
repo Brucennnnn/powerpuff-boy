@@ -1,10 +1,13 @@
 "use client";
 // import { useUser } from "@web/guard/useUser";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Card } from "./components/SwipeCard";
-import { CareersCard } from "./components/CareersCard";
+import { Career, CareersCard } from "./components/CareersCard";
 import Link from "next/link";
+import { useQuestion } from "@web/provider/hook/quiz/useQuestion";
+import { useSubmit } from "@web/provider/hook/quiz/useSubmit";
+import Typography from "@web/components/ui/typography";
 
 const SwipeCard = dynamic(() => import("./components/SwipeCard"), {
   ssr: false,
@@ -12,7 +15,17 @@ const SwipeCard = dynamic(() => import("./components/SwipeCard"), {
 
 export default function Page() {
   const [answer, setAnswer] = useState<Record<number, boolean>>({});
-  const [cards, setCards] = useState<Card[]>(cardData);
+  const [career, setCareer] = useState<Career | null>();
+  const [cards, setCards] = useState<Card[]>([]);
+  const [isSubmit, setIsSubmit] = useState(false);
+  const { data: question } = useQuestion();
+  const { mutate: onSubmit } = useSubmit();
+
+  useEffect(() => {
+    if (!question) return;
+    const card = question.map((q) => ({ id: q.id, title: q.question }));
+    setCards(card);
+  }, [question]);
 
   const onYes = (id: number) => {
     answer[id] = true;
@@ -23,14 +36,35 @@ export default function Page() {
     answer[id] = false;
     setAnswer(answer);
   };
-  console.log(answer);
 
-  if (cards.length === 0) {
+  useEffect(() => {
+    if (cards.length > 0 || career) return;
+    console.log("submit");
+
+    const submitAnswer: { answer: boolean; questionId: number }[] = [];
+    for (const [key, value] of Object.entries(answer)) {
+      submitAnswer.push({ answer: value, questionId: Number(key) });
+    }
+
+    try {
+      onSubmit(submitAnswer, {
+        onSuccess(data) {
+          setCareer(data);
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
+    setIsSubmit(true);
+  }, [cards, isSubmit, onSubmit, career, answer]);
+
+  if (career) {
     return (
       <div className="flex flex-col min-h-dvh min-w-dvw bg-coralred justify-center items-center gap-4">
-        <CareersCard job="Artist" />
+        <CareersCard {...career} />
         <Link
-          href="https://www.garenaacademy.com/"
+          href={career.academy_link}
           className="bg-white p-2 rounded-full items-end"
         >
           ไปที่ Academy
@@ -41,6 +75,9 @@ export default function Page() {
 
   return (
     <div className="grid h-[500px] min-h-dvh min-w-dvw bg-coralred  place-items-center ">
+      <Typography variant="h3" fontWeight="bold" className="text-white">
+        Quiz
+      </Typography>
       {cards.map((card) => {
         return (
           <SwipeCard
@@ -55,18 +92,3 @@ export default function Page() {
     </div>
   );
 }
-
-const cardData: Card[] = [
-  {
-    id: 0,
-    title: "คุณชอบเล่นเกมส์มั้ย?",
-  },
-  {
-    id: 1,
-    title: "คุณชอบเล่นเกมส์มั้ย?",
-  },
-  {
-    id: 2,
-    title: "คุณชอบเล่นเกมส์มั้ย?",
-  },
-];

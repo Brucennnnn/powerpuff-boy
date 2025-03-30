@@ -92,7 +92,7 @@ function CardContent({
   no: boolean;
 }) {
   return (
-    <div className="bg-pippin w-full h-full flex justify-center items-center relative">
+    <div className="bg-white w-full h-full flex justify-center items-center relative p-2">
       <Image
         alt="yes"
         src="/yes.svg"

@@ -73,15 +73,21 @@ const questionsController = new Elysia({ prefix: "/questions" })
         const possibleAnswers = await JobService.getAllJobs();
 
         const recommendation = await CareerService.getCareerRecommendation(formattedAnswers, possibleAnswers);
+        if ("error" in recommendation) {
+          return error(500, { message: "Internal Server Error" });
+        }
         // Call another controller/service with the formatted data
         // Import and use the other controller here
 
         //const result = await aiController.sendSomeAnswer(formattedAnswers); <-- Example of calling another controller
 
         // Return the original formatted answers
-        return recommendation;
+        const career = await JobService.getJobById(recommendation.id);
+        if (!career) {
+          return error(500, { message: "Internal Server Error" });
+        }
+        return career;
       } catch (err) {
-        console.error(err);
         return error(500, { message: "Internal Server Error" });
       }
     },
