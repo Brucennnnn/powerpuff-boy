@@ -38,12 +38,15 @@ export default function Page() {
   };
 
   useEffect(() => {
-    if (cards.length > 0 || career) return;
+    if (!question || cards.length > 0 || career) return;
     console.log("submit");
 
     const submitAnswer: { answer: boolean; questionId: number }[] = [];
     for (const [key, value] of Object.entries(answer)) {
       submitAnswer.push({ answer: value, questionId: Number(key) });
+    }
+    if (submitAnswer.length === 0) {
+      return;
     }
 
     try {
@@ -57,7 +60,7 @@ export default function Page() {
     }
 
     setIsSubmit(true);
-  }, [cards, isSubmit, onSubmit, career, answer]);
+  }, [cards, isSubmit, onSubmit, career, answer, question]);
 
   if (career) {
     return (
