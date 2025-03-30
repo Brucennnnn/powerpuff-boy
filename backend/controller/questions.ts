@@ -2,6 +2,7 @@ import { Prisma, QuestionStatus } from "@prisma/client";
 import db from "backend/db/db";
 import { CareerService } from "backend/services/careerService";
 import { JobService } from "backend/services/jobService";
+import { LogsService } from "backend/services/logsService";
 import { Elysia, t } from "elysia";
 
 const questionsController = new Elysia({ prefix: "/questions" })
@@ -86,7 +87,14 @@ const questionsController = new Elysia({ prefix: "/questions" })
         if (!career) {
           return error(500, { message: "Internal Server Error" });
         }
-        return career;
+        console.log("Career:", career);
+        await LogsService.createLog({ job_id: career['id'] });
+        const finalResult = await LogsService.getJobById(career['id']);
+        if (!finalResult) {
+          return error(500, { message: "Internal Server Error" });
+        }
+        console.log("Final Result:", finalResult);
+        return finalResult;
       } catch (err) {
         return error(500, { message: "Internal Server Error" });
       }

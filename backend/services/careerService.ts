@@ -1,4 +1,3 @@
-
 // services/careerService.ts
 import OpenAI from "openai";
 import { config } from "dotenv";
@@ -22,7 +21,6 @@ export const CareerService = {
    * @returns Career recommendation object
    */
   async getCareerRecommendation(
-
     userAnswers: { question: string; answer: boolean }[],
     careerOptions: {
       id: number;
@@ -34,8 +32,6 @@ export const CareerService = {
     }[]
   ) {
     try {
-
-
       const prompt = `
       ฉันมีคำตอบของผู้ใช้ที่ตอบคำถามเกี่ยวกับความสนใจในวงการเกม
       ให้คุณแนะนำอาชีพที่เหมาะสมที่สุดจากรายการนี้:
@@ -65,10 +61,15 @@ export const CareerService = {
         return { error: "ไม่สามารถให้คำแนะนำได้" };
       }
       try {
-        const parsedResult: CareerResponse = JSON.parse(content);
-
-        return parsedResult
-
+        // ลบ backticks และ json tag ออกก่อน parse
+        const cleanedContent = content
+          .replace(/```json\n/g, '')
+          .replace(/```\n/g, '')
+          .replace(/```/g, '')
+          .trim();
+          
+        const parsedResult: CareerResponse = JSON.parse(cleanedContent);
+        return parsedResult;
       } catch (parseError) {
         console.error("JSON Parse Error:", parseError, "Response:", content);
         return {
@@ -76,7 +77,6 @@ export const CareerService = {
           raw_response: content
         };
       }
-
     } catch (error) {
       console.error("Career Service Error:", error);
       return {

@@ -61,9 +61,8 @@ export const LogsService = {
         }
     },
 
-    async getLogsByJobId(jobId: number) {
+    async getJobById(jobId: number) {
         try {
-            // Check if job exists
             const job = await db.jobs.findUnique({
                 where: {
                     id: jobId
@@ -74,41 +73,69 @@ export const LogsService = {
                 return null;
             }
 
-            // Get total count of logs with this job_id
-            const totalLogsWithJob = await db.logs.count({
+            // นับจำนวน jobs ทั้งหมดในฐานข้อมูล
+            const totalJobs = await db.jobs.count();
+
+            // นับจำนวน jobs ที่มี job_id เหมือนกัน (รวมถึง job ปัจจุบัน)
+            const sameTypeJobs = await db.jobs.count({
                 where: {
-                    job_id: jobId
+                    id: job.id
                 }
             });
 
-            // Get logs for the job with position and percentage information
-            const logs = await db.logs.findMany({
+            // คำนวณเปอร์เซ็นต์ของ jobs ที่มี job_id เดียวกันเทียบกับ jobs ทั้งหมด
+            const percentage = (sameTypeJobs / totalJobs) * 100;
+
+            // หาตำแหน่งของ job ปัจจุบันในกลุ่ม jobs ที่มี job_id เดียวกัน
+            const position = await db.jobs.count({
                 where: {
-                    job_id: jobId
-                },
-                orderBy: {
-                    id: 'asc'
-                },
-                include: {
-                    job: true
+                    id: {
+                        lte: job.id
+                    }
                 }
             });
 
-            // Add percentage information to each log
-            const logsWithPercentage = logs.map((log, index) => {
-                const position = index + 1;
-                const percentage = (position / totalLogsWithJob) * 100;
+            // คำนวณเปอร์เซ็นต์ของตำแหน่งในกลุ่ม
+            const positionPercentage = (position / sameTypeJobs) * 100;
 
-                return {
-                    ...log,
-                    percentage: Math.round(percentage * 10) / 10,
-                    position: position,
-                    totalLogsWithJob: totalLogsWithJob
-                };
-            });
-
-            return logsWithPercentage;
+            return {
+                ...job,
+                totalJobs,
+                sameTypeJobs,
+                percentage: Math.round(percentage * 10) / 10, // เปอร์เซ็นต์ของ jobs ประเภทเดียวกันเทียบกับทั้งหมด
+                position,
+                positionPercentage: Math.round(positionPercentage * 10) / 10 // ตำแหน่งเปอร์เซ็นต์ในกลุ่มประเภทเดียวกัน
+            };
         } catch (err) {
+            console.error("Error fetching job by ID:", err);
+            throw err;
+        }
+    },
+
+    async createLog(data: { job_id: number }) {
+        try {
+            // Check if job exists
+            const job = await db.jobs.findUnique({
+                where: {
+                    id: data.job_id
+                }
+            });
+
+            if (!job) {
+                return { error: "Job not found" };
+            }
+
+            // Create the log
+            const log = await db.logs.create({
+                data: {
+                    job_id: data.job_id
+                    // created_at จะถูกสร้างอัตโนมัติโดย Prisma ถ้าเป็น timestamp ที่มี default value เป็น NOW()
+                }
+            });
+
+            return log;
+        } catch (err) {
+            console.error("Error creating log:", err);
             throw err;
         }
     }
