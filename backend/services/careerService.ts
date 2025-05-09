@@ -60,17 +60,22 @@ export const CareerService = {
       });
 
       const content = response.choices[0]?.message?.content || null;
-
       if (!content) {
         return { error: "ไม่สามารถให้คำแนะนำได้" };
       }
+      const cleanedContent = content
+        .replace(/```json\n/g, '')
+        .replace(/```\n/g, '')
+        .replace(/```/g, '')
+        .trim();
+
       try {
-        const parsedResult: CareerResponse = JSON.parse(content);
+        const parsedResult: CareerResponse = JSON.parse(cleanedContent);
 
         return parsedResult
 
       } catch (parseError) {
-        console.error("JSON Parse Error:", parseError, "Response:", content);
+        console.error("JSON Parse Error:", parseError, "Response:", cleanedContent);
         return {
           error: "ไม่สามารถประมวลผลข้อมูลจาก AI ได้",
           raw_response: content
