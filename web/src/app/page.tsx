@@ -11,7 +11,7 @@ export default function Home() {
           อยากอัพสกิลตัวเองใช่ไหม?
         </Typography>
         <Typography variant="h4" fontWeight="bold" className="text-white">
-          อยากอัพสกิลตัวเองใช่ไหม?
+          ลองทดสอบดูสิว่าคุณเหมาะกับอาชีพไหน
         </Typography>
         <Link href={"/quiz"} className="bg-white p-2 rounded-full">
           คลิกเพื่อเริ่มทดสอบกันเลย!
